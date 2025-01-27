@@ -44,6 +44,7 @@ export const generatePDFPreview = (pdfPath) => {
       return base64Image;
     }).catch((error) => {
       console.error('Error generating PDF preview:', error);
-      throw error;
+      // uncomment if you want the backent to crash when an error is thrown, app still works other wise.
+      // throw error;
     });
   };

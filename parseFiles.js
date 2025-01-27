@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
+import { encryptString } from './cryptoUtil.js';
 // import '.server.js';
 
 // Load folder path from environment variable
@@ -96,9 +97,7 @@ const extractTextFromPdf = async (filePath) => {
 };
 
 const encryptFileName = (filePath) => {
-  const encFileNameCipher = crypto.createCipheriv(process.env.ALGO,process.env.KEY , process.env.SALT)
-  const encFileName = encFileNameCipher.update(filePath, 'utf8', 'hex') + encFileNameCipher.final('hex')
-  return encFileName;
+  return encryptString(filePath, process.env.PASSWORD)
 }
 
 
