@@ -51,22 +51,23 @@ const saveScannedFilesIndex = () => {
 
 // Function to generate a hash of the file (used to uniquely identify files)
 const generateFileHash = (filePath) => {
+  
   const fileBuffer = fs.readFileSync(filePath);
   const hash = crypto.createHash('md5').update(fileBuffer).digest('hex');
   return hash;
 };
 
 // Function to check if a file has already been scanned
-const isFileScanned = (filePath) => {
-  const fileHash = generateFileHash(filePath);
-  return scannedFiles.includes(fileHash);
+const isFileScanned = (encFileName) => {
+  // const fileHash = encryptFileName(filePath);
+  return scannedFiles.includes(encFileName);
 };
 
 // Function to add a file to the scanned files index
-const addFileToScannedIndex = (filePath) => {
-  const fileHash = generateFileHash(filePath);
-  if (!scannedFiles.includes(fileHash)) {
-    scannedFiles.push(fileHash);
+const addFileToScannedIndex = (encFileName) => {
+  // const fileHash = encryptFileName(filePath);
+  if (!scannedFiles.includes(encFileName)) {
+    scannedFiles.push(encFileName);
   }
 };
 
@@ -94,17 +95,25 @@ const extractTextFromPdf = async (filePath) => {
   return fullText;
 };
 
+const encryptFileName = (filePath) => {
+  const encFileNameCipher = crypto.createCipheriv(process.env.ALGO,process.env.KEY , process.env.SALT)
+  const encFileName = encFileNameCipher.update(filePath, 'utf8', 'hex') + encFileNameCipher.final('hex')
+  return encFileName;
+}
+
+
 // Function to parse, tokenize, and index a PDF file
 const parseAndIndexPdf = async (filePath) => {
   try {
+    const encFileName = encryptFileName(filePath)
+
     // Skip the file if it has already been scanned
-    if (isFileScanned(filePath)) {
+    if (isFileScanned(encFileName)) {
       // console.log(`Skipping already scanned PDF (${path.basename(filePath)}).`);
       return;
     }
 
     const text = await extractTextFromPdf(filePath);
-
     // Tokenization: split text using regex for non-word characters (anything other than letters and digits)
     let tokens = text
       .replace(/_/g, ' ')
@@ -117,13 +126,13 @@ const parseAndIndexPdf = async (filePath) => {
       if (!invertedIndex[token]) {
         invertedIndex[token] = []; // Create a new entry if the token doesn't exist
       }
-      if (!invertedIndex[token].includes(filePath)) {
-        invertedIndex[token].push(filePath); // Add the document (file path) to the token's list
+      if (!invertedIndex[token].includes(encFileName)) {
+        invertedIndex[token].push(encFileName); // Add the document (file path) to the token's list
       }
     });
 
     // Add the file to the scanned files index
-    addFileToScannedIndex(filePath);
+    addFileToScannedIndex(encFileName);
 
     console.log(`Indexed and added PDF (${path.basename(filePath)}).`);
   } catch (error) {

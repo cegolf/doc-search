@@ -3,6 +3,10 @@ import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import { generatePDFPreview } from './generatePdfPreview.js';
+import crypto from 'crypto';
+import 'dotenv/config'; // Load environment variables from .env file
+
+
 const app = express();
 const PORT = 5000;
 
@@ -43,7 +47,9 @@ app.get('/search', async (req, res) => {
       }
   
       // Generate PDF previews for each file path
-      const pdfData = await Promise.all(filePaths.map(async (filePath) => {
+      const pdfData = await Promise.all(filePaths.map(async (encFilePath) => {
+        var decipher = crypto.createDecipheriv(process.env.ALGO, process.env.KEY,process.env.SALT);
+        const filePath = decipher.update(encFilePath, 'hex', 'utf8') + decipher.final('utf8');
         // const fullFilePath = path.join(PDF_FOLDER, filePath);
         const preview = await generatePDFPreview(filePath);
         return {
