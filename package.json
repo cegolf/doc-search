@@ -1,0 +1,16 @@
+{
+  "name": "your-project",
+  "version": "1.0.0",
+  "main": "parseFiles.js",
+  "type": "module",
+  "scripts": {
+    "start": "node parseFiles.js"
+  },
+  "dependencies": {
+    "canvas": "^3.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.21.2",
+    "pdfjs-dist": "^4.10.38"
+  }
+}
